@@ -1,2 +1,2 @@
-# fatstak
-A watch-only wallet for your bitcoin.
+# FATSTAK
+A watch-only wallet for your bitcoin. 🌽
