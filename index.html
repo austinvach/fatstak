@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FATSTACK | A Watch-Only Wallet for Bitcoin</title>
+    <title>FATSTACK | A Watch-Only Wallet for Your Bitcoin</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,7 +36,7 @@
 </head>
 <body>
     <h1 class="bowlby">FATSTAK</h1>
-    <p>A Watch-Only Wallet For Bitcoin</p>
+    <p>A Watch-Only Wallet for Your Bitcoin</p>
     <input type="text" id="btcAddress" placeholder="Enter Bitcoin Address">
     <button onclick="addAddress()">Add Address</button>
     <h2>Saved Addresses</h2>
@@ -49,9 +49,11 @@
         </thead>
         <tbody></tbody>
     </table>
+    <p id="lastUpdated"></p>
 
     <script>
         let savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
+        let lastFetchTime = localStorage.getItem('lastFetchTime');
 
         function addAddress() {
             const address = document.getElementById('btcAddress').value;
@@ -80,17 +82,27 @@
         }
 
         async function fetchUSDValues() {
-            const rows = document.querySelectorAll('#addressTable tbody tr');
-            for (let i = 0; i < savedAddresses.length; i++) {
-                const address = savedAddresses[i];
-                const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
-                if (response.ok) {
-                    const balance = await response.json();
-                    const usdValue = (balance / 100000000) * await fetchBTCtoUSD();
-                    rows[i].cells[1].textContent = `$${usdValue.toFixed(2)}`;
-                } else {
-                    rows[i].cells[1].textContent = 'Error';
+            const now = new Date().getTime();
+            const fifteenMinutes = 15 * 60 * 1000;
+
+            if (!lastFetchTime || now - lastFetchTime > fifteenMinutes) {
+                const rows = document.querySelectorAll('#addressTable tbody tr');
+                for (let i = 0; i < savedAddresses.length; i++) {
+                    const address = savedAddresses[i];
+                    const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
+                    if (response.ok) {
+                        const balance = await response.json();
+                        const usdValue = (balance / 100000000) * await fetchBTCtoUSD();
+                        rows[i].cells[1].textContent = `$${usdValue.toFixed(2)}`;
+                    } else {
+                        rows[i].cells[1].textContent = 'Error';
+                    }
                 }
+                lastFetchTime = now;
+                localStorage.setItem('lastFetchTime', lastFetchTime);
+                document.getElementById('lastUpdated').textContent = `Last updated: ${new Date(lastFetchTime).toLocaleString()}`;
+            } else {
+                document.getElementById('lastUpdated').textContent = `Last updated: ${new Date(parseInt(lastFetchTime)).toLocaleString()}`;
             }
         }
 
