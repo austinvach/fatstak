@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Address Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>FATSTAK.com</h1>
+    <p>A Watch-Only Wallet For Your Bitcoin</p>
+    <input type="text" id="btcAddress" placeholder="Enter Bitcoin Address">
+    <button onclick="addAddress()">Add Address</button>
+    <h2>Saved Addresses</h2>
+    <table id="addressTable">
+        <thead>
+            <tr>
+                <th>Bitcoin Address</th>
+                <th>USD Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        let savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
+
+        function addAddress() {
+            const address = document.getElementById('btcAddress').value;
+            if (address) {
+                savedAddresses.push(address);
+                localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
+                document.getElementById('btcAddress').value = '';
+                displayAddresses();
+                fetchUSDValues();
+            }
+        }
+
+        function displayAddresses() {
+            const addressTableBody = document.querySelector('#addressTable tbody');
+            addressTableBody.innerHTML = '';
+            savedAddresses.forEach(address => {
+                const row = document.createElement('tr');
+                const addressCell = document.createElement('td');
+                addressCell.textContent = address;
+                const usdValueCell = document.createElement('td');
+                usdValueCell.textContent = 'Loading...';
+                row.appendChild(addressCell);
+                row.appendChild(usdValueCell);
+                addressTableBody.appendChild(row);
+            });
+        }
+
+        async function fetchUSDValues() {
+            const rows = document.querySelectorAll('#addressTable tbody tr');
+            for (let i = 0; i < savedAddresses.length; i++) {
+                const address = savedAddresses[i];
+                const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
+                if (response.ok) {
+                    const balance = await response.json();
+                    const usdValue = (balance / 100000000) * await fetchBTCtoUSD();
+                    rows[i].cells[1].textContent = `$${usdValue.toFixed(2)}`;
+                } else {
+                    rows[i].cells[1].textContent = 'Error';
+                }
+            }
+        }
+
+        async function fetchBTCtoUSD() {
+            const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice/BTC.json');
+            const data = await response.json();
+            return data.bpi.USD.rate_float;
+        }
+
+        displayAddresses();
+        fetchUSDValues();
+    </script>
+</body>
+</html>
