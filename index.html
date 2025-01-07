@@ -61,12 +61,13 @@
     <script>
         savedAddresses = [];
         lastUpdated = null;
+        refreshTime = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             const now = new Date().getTime();
             savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
             lastUpdated = localStorage.getItem('lastUpdated');
-            const refreshTime = 15 * 60 * 1000; // Current refresh time is every 15 minutes
+            refreshTime = 15 * 60 * 1000; // Current refresh time is every 15 minutes
 
             if (!lastUpdated || now - lastUpdated > refreshTime) {
                 fetchBalances();
@@ -74,6 +75,8 @@
                 localStorage.setItem('lastUpdated', lastUpdated);
             } else {
                 displayAddresses();
+                const timeUntilNextRefresh = refreshTime - (now - lastUpdated);
+                setTimeout(fetchBalances, timeUntilNextRefresh);
             }
         });
 
@@ -85,7 +88,6 @@
                 localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
                 document.getElementById('btcAddress').value = '';
                 fetchBalances();
-                displayAddresses();
             }
         }
 
@@ -139,6 +141,7 @@
                 }
             }
             localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
+            setTimeout(fetchBalances, refreshTime);
             displayAddresses();
         }
 
