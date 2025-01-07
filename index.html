@@ -29,6 +29,12 @@
             font-style: normal;
             font-size: 3em;
         }
+        .edit-icon {
+            visibility: hidden;
+        }
+        td:hover .edit-icon {
+            visibility: visible;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,12 +45,13 @@
     <p>Track Your Bitcoin</p>
     <input type="text" id="btcAddress" placeholder="Enter Bitcoin Address">
     <button onclick="addAddress()">Watch Wallet</button>
-    <h2>Watched Wallets</h2>
+    <h2>Watchlist</h2>
     <table id="addressTable">
         <thead>
             <tr>
                 <th>Bitcoin Wallets</th>
-                <th>USD Value</th>
+                <th>Balance</th>
+                <!-- <th>Current Value</th> -->
             </tr>
         </thead>
         <tbody></tbody>
@@ -52,22 +59,38 @@
     <p id="lastUpdated"></p>
 
     <script>
-        let savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
-        let lastFetchTime = localStorage.getItem('lastFetchTime');
+        savedAddresses = [];
+        lastUpdated = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date().getTime();
+            savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
+            lastUpdated = localStorage.getItem('lastUpdated');
+            const refreshTime = 15 * 60 * 1000; // Current refresh time is every 15 minutes
+
+            if (!lastUpdated || now - lastUpdated > refreshTime) {
+                fetchBalances();
+                lastUpdated = now;
+                localStorage.setItem('lastUpdated', lastUpdated);
+            } else {
+                displayAddresses();
+            }
+        });
 
         function addAddress() {
             const address = document.getElementById('btcAddress').value;
             if (address) {
-                savedAddresses.push({ address: address, nickname: '', dateAdded: null, lastUpdated: null, balance: null});
+                const currentDate = new Date().toISOString();
+                savedAddresses.push({ address: address, dateAdded: currentDate});
                 localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
                 document.getElementById('btcAddress').value = '';
+                fetchBalances();
                 displayAddresses();
-                // fetchUSDValues();
             }
         }
 
         function displayAddresses() {
-            console.log("DISPLAY ADDRESSES");
+            // console.log("DISPLAY ADDRESSES");
             const addressTableBody = document.querySelector('#addressTable tbody');
             addressTableBody.innerHTML = '';
             savedAddresses.forEach((entry, index) => {
@@ -76,19 +99,23 @@
                 addressCell.textContent = entry.nickname ? `${entry.nickname} (${entry.address.slice(-6)})` : entry.address;
                 const editIcon = document.createElement('span');
                 editIcon.textContent = ' ✏️';
+                editIcon.className = 'edit-icon';
                 editIcon.style.cursor = 'pointer';
                 editIcon.onclick = () => editNickname(index);
                 addressCell.appendChild(editIcon);
-                const usdValueCell = document.createElement('td');
-                // usdValueCell.textContent = 'Loading...';
+                const balanceCell = document.createElement('td');
+                balanceCell.textContent = entry.balance ? entry.balance : 'Loading...';
+                // const usdValueCell = document.createElement('td');
+                // usdValueCell.textContent = entry.usdValueCell ? entry.balance : 'Loading...';
                 row.appendChild(addressCell);
-                row.appendChild(usdValueCell);
+                row.appendChild(balanceCell);
+                // row.appendChild(usdValueCell);
                 addressTableBody.appendChild(row);
             });
+            document.getElementById('lastUpdated').textContent = `Last Updated: ${new Date(parseInt(lastUpdated)).toLocaleString()}`
         }
 
         function editNickname(index) {
-            savedAddresses = JSON.parse(localStorage.getItem('savedAddresses')) || [];
             const newNickname = prompt('Enter a nickname for this address:', savedAddresses[index].nickname);
             if (newNickname !== null) {
                 const addressSuffix = savedAddresses[index].address.slice(-6);
@@ -98,39 +125,28 @@
             }
         }
 
-        // async function fetchUSDValues() {
-        //     const now = new Date().getTime();
-        //     const fifteenMinutes = 15 * 60 * 1000;
+        async function fetchBalances() {
+            const rows = document.querySelectorAll('#addressTable tbody tr');
+            for (let i = 0; i < savedAddresses.length; i++) {
+                const address = savedAddresses[i].address;
+                const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
+                if (response.ok) {
+                    savedAddresses[i].balance = await response.json();
+                    // const usdValue = (balance / 100000000) * await fetchBTCtoUSD();
+                    // rows[i].cells[1].textContent = `$${usdValue.toFixed(2)}`;
+                } else {
+                    savedAddresses[i].balance = 'Error';
+                }
+            }
+            localStorage.setItem('savedAddresses', JSON.stringify(savedAddresses));
+            displayAddresses();
+        }
 
-        //     if (!lastFetchTime || now - lastFetchTime > fifteenMinutes) {
-        //         const rows = document.querySelectorAll('#addressTable tbody tr');
-        //         for (let i = 0; i < savedAddresses.length; i++) {
-        //             const address = savedAddresses[i];
-        //             const response = await fetch(`https://blockchain.info/q/addressbalance/${address}`);
-        //             if (response.ok) {
-        //                 const balance = await response.json();
-        //                 const usdValue = (balance / 100000000) * await fetchBTCtoUSD();
-        //                 rows[i].cells[1].textContent = `$${usdValue.toFixed(2)}`;
-        //             } else {
-        //                 rows[i].cells[1].textContent = 'Error';
-        //             }
-        //         }
-        //         lastFetchTime = now;
-        //         localStorage.setItem('lastFetchTime', lastFetchTime);
-        //         document.getElementById('lastUpdated').textContent = `Last updated: ${new Date(lastFetchTime).toLocaleString()}`;
-        //     } else {
-        //         document.getElementById('lastUpdated').textContent = `Last updated: ${new Date(parseInt(lastFetchTime)).toLocaleString()}`;
-        //     }
-        // }
-
-        // async function fetchBTCtoUSD() {
-        //     const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice/BTC.json');
-        //     const data = await response.json();
-        //     return data.bpi.USD.rate_float;
-        // }
-
-        displayAddresses();
-        // fetchUSDValues();
+        async function fetchBTCtoUSD() {
+            const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice/BTC.json');
+            const data = await response.json();
+            return data.bpi.USD.rate_float;
+        } 
     </script>
 </body>
 </html>
