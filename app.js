@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   savedAddresses = JSON.parse(localStorage.getItem("savedAddresses")) || [];
   lastUpdated = localStorage.getItem("lastUpdated");
   refreshTime = 15 * 60 * 1000; // Current refresh time is every 15 minutes
+  fetchBTCtoUSD();
 
   if (!lastUpdated || now - lastUpdated > refreshTime) {
     fetchBalances();
@@ -90,6 +91,7 @@ async function fetchBalances() {
   }
   localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
   setTimeout(fetchBalances, refreshTime);
+  fetchBTCtoUSD();
   displayAddresses();
 }
 
@@ -98,5 +100,8 @@ async function fetchBTCtoUSD() {
     "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
   );
   const data = await response.json();
-  return data.bpi.USD.rate_float;
+  const btcPriceSpan = document.getElementById("btcPrice");
+  const btcPrice = data.bpi.USD.rate_float.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  localStorage.setItem("btcPrice", btcPrice);
+  btcPriceSpan.textContent = ` $${btcPrice}`;
 }
