@@ -1,22 +1,17 @@
-savedAddresses = [];
-lastUpdated = null;
-refreshTime = null;
-
 document.addEventListener("DOMContentLoaded", () => {
   const now = new Date().getTime();
   savedAddresses = JSON.parse(localStorage.getItem("savedAddresses")) || [];
-  lastUpdated = localStorage.getItem("lastUpdated");
-  refreshTime = 15 * 60 * 1000; // Current refresh time is every 15 minutes
-  fetchBTCtoUSD();
-
+  lastUpdated = localStorage.getItem("lastUpdated") || null;
+  btcPrice = localStorage.getItem("btcPrice") || null;
+  refreshTime = 1 * 60 * 1000; // Current refresh time is every 5 minutes
+  
+//CHECK IF A USER HAS ANY SAVED ADDRESSES BEFORE TRYING TO FETCH OR DISPLAY UPDATES
   if (!lastUpdated || now - lastUpdated > refreshTime) {
-    fetchBalances();
-    lastUpdated = now;
-    localStorage.setItem("lastUpdated", lastUpdated);
+    fetchUpdates();
   } else {
-    displayAddresses();
+    displayInformation();
     const timeUntilNextRefresh = refreshTime - (now - lastUpdated);
-    setTimeout(fetchBalances, timeUntilNextRefresh);
+    setTimeout(fetchUpdates, timeUntilNextRefresh);
   }
 });
 
@@ -27,12 +22,17 @@ function addAddress() {
     savedAddresses.push({ address: address, dateAdded: currentDate });
     localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
     document.getElementById("btcAddress").value = "";
-    fetchBalances();
+    fetchUpdates();
   }
 }
 
-function displayAddresses() {
-  // console.log("DISPLAY ADDRESSES");
+function displayInformation() {
+  // console.log("DISPLAY INFORMATION");
+  // DISPLAY THE CURRENT BITCOIN PRICE
+  const btcPriceSpan = document.getElementById("btcPrice");
+  btcPriceSpan.textContent = ` $${btcPrice}`;
+  // CHECK IF THE USER HAS ANY SAVED ADDRESSES AND DISPLAY THEM IF THEY DO
+  if (savedAddresses) {
   const addressTableBody = document.querySelector("#addressTable tbody");
   addressTableBody.innerHTML = "";
   savedAddresses.forEach((entry, index) => {
@@ -61,6 +61,7 @@ function displayAddresses() {
   ).textContent = `Last Updated: ${new Date(
     parseInt(lastUpdated)
   ).toLocaleString()}`;
+  }
 }
 
 function editNickname(index) {
@@ -72,36 +73,40 @@ function editNickname(index) {
     const addressSuffix = savedAddresses[index].address.slice(-6);
     savedAddresses[index].nickname = newNickname;
     localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
-    displayAddresses();
+    displayInformation();
   }
 }
 
-async function fetchBalances() {
-  const rows = document.querySelectorAll("#addressTable tbody tr");
-  for (let i = 0; i < savedAddresses.length; i++) {
-    const address = savedAddresses[i].address;
-    const response = await fetch(
-      `https://blockchain.info/q/addressbalance/${address}`
-    );
-    if (response.ok) {
-      savedAddresses[i].balance = await response.json();
-    } else {
-      savedAddresses[i].balance = "Error";
-    }
-  }
-  localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
-  setTimeout(fetchBalances, refreshTime);
-  fetchBTCtoUSD();
-  displayAddresses();
-}
-
-async function fetchBTCtoUSD() {
+async function fetchUpdates() {
+  console.log("FETCH UPDATES");
+  // FETCH BITCOIN PRICE
   const response = await fetch(
     "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
   );
   const data = await response.json();
-  const btcPriceSpan = document.getElementById("btcPrice");
-  const btcPrice = data.bpi.USD.rate_float.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  btcPrice = data.bpi.USD.rate_float.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   localStorage.setItem("btcPrice", btcPrice);
-  btcPriceSpan.textContent = ` $${btcPrice}`;
+  
+  // IF THE USER HAS ANY SAVED ADDRESSES, FETCH THIER BALANCES TOO
+  if (savedAddresses) {
+    const rows = document.querySelectorAll("#addressTable tbody tr");
+    for (let i = 0; i < savedAddresses.length; i++) {
+      const address = savedAddresses[i].address;
+      const response = await fetch(
+        `https://blockchain.info/q/addressbalance/${address}`
+      );
+      if (response.ok) {
+        savedAddresses[i].balance = await response.json();
+      } else {
+        savedAddresses[i].balance = "Error";
+      }
+    }
+    localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
+  }
+  // UPDATE THE LAST UPDATED TIME
+  lastUpdated = new Date().getTime();
+  localStorage.setItem("lastUpdated", lastUpdated);
+  // SET A TIMEOUT FOR THE NEXT REFRESH
+  setTimeout(fetchUpdates, refreshTime);
+  displayInformation();
 }
