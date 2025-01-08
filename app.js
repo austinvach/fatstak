@@ -30,7 +30,7 @@ function displayInformation() {
   // console.log("DISPLAY INFORMATION");
   // DISPLAY THE CURRENT BITCOIN PRICE
   const btcPriceSpan = document.getElementById("btcPrice");
-  btcPriceSpan.textContent = ` $${btcPrice}`;
+  btcPriceSpan.textContent = ` $${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   // CHECK IF THE USER HAS ANY SAVED ADDRESSES AND DISPLAY THEM IF THEY DO
   if (savedAddresses) {
   const addressTableBody = document.querySelector("#addressTable tbody");
@@ -50,7 +50,7 @@ function displayInformation() {
     const balanceCell = document.createElement("td");
     balanceCell.textContent = entry.balance ? entry.balance : "Loading...";
     const valueCell = document.createElement("td");
-    valueCell.textContent = entry.value ? entry.value : "Loading...";
+    valueCell.textContent = entry.value ? ` $${entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Loading...";
     row.appendChild(addressCell);
     row.appendChild(balanceCell);
     row.appendChild(valueCell);
@@ -84,7 +84,7 @@ async function fetchUpdates() {
     "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
   );
   const data = await response.json();
-  btcPrice = data.bpi.USD.rate_float.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  btcPrice = data.bpi.USD.rate_float;
   localStorage.setItem("btcPrice", btcPrice);
   
   // IF THE USER HAS ANY SAVED ADDRESSES, FETCH THIER BALANCES TOO
@@ -97,8 +97,10 @@ async function fetchUpdates() {
       );
       if (response.ok) {
         savedAddresses[i].balance = await response.json();
+        savedAddresses[i].value = ((savedAddresses[i].balance/100000000) * btcPrice);
       } else {
         savedAddresses[i].balance = "Error";
+        savedAddresses[i].value = "Error";
       }
     }
     localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
