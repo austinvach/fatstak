@@ -30,7 +30,7 @@ function displayInformation() {
   // console.log("DISPLAY INFORMATION");
   // DISPLAY THE CURRENT BITCOIN PRICE
   const btcPriceSpan = document.getElementById("btcPrice");
-  btcPriceSpan.textContent = ` $${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  btcPriceSpan.textContent = `USD/BTC: $${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   // CHECK IF THE USER HAS ANY SAVED ADDRESSES AND DISPLAY THEM IF THEY DO
   if (savedAddresses) {
   const addressTableBody = document.querySelector("#addressTable tbody");
@@ -48,7 +48,7 @@ function displayInformation() {
     editIcon.onclick = () => editNickname(index);
     addressCell.appendChild(editIcon);
     const balanceCell = document.createElement("td");
-    balanceCell.textContent = entry.balance ? entry.balance : "Loading...";
+    balanceCell.textContent = entry.balance ? (entry.balance/100000000) : "Loading...";
     const valueCell = document.createElement("td");
     valueCell.textContent = entry.value ? ` $${entry.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Loading...";
     row.appendChild(addressCell);
