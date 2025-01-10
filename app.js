@@ -46,6 +46,8 @@ function displayInformation() {
       addressCell.appendChild(newCell);
     } else {
       addressCell.textContent = entry.address;
+      addressCell.classList.add('opacity-50');
+      addressCell.classList.add('truncate');
     }
     // const editIcon = document.createElement("span");
     // editIcon.textContent = " ✏️";
