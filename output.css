@@ -1985,6 +1985,10 @@ html {
   position: fixed;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .relative {
   position: relative;
 }
@@ -2018,6 +2022,10 @@ html {
   height: 100%;
 }
 
+.h-0 {
+  height: 0px;
+}
+
 .w-5 {
   width: 1.25rem;
 }
@@ -2036,6 +2044,23 @@ html {
 
 .w-1\/2 {
   width: 50%;
+}
+
+.w-0 {
+  width: 0px;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.w-auto {
+  width: auto;
+}
+
+.w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
 .max-w-screen-lg {
@@ -2083,6 +2108,10 @@ html {
   flex-grow: 1;
 }
 
+.table-fixed {
+  table-layout: fixed;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -2105,6 +2134,10 @@ html {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overflow-clip {
+  overflow: clip;
 }
 
 .overflow-x-auto {
