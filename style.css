@@ -26,6 +26,6 @@ th {
 .edit-icon {
     visibility: hidden;
 }
-td:hover .edit-icon {
+thead:hover .edit-icon, td:hover .edit-icon {
     visibility: visible;
 }

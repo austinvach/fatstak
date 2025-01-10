@@ -1,31 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FATSTAK | Track Your Bitcoin</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <link rel="stylesheet" href="output.css">
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
-    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap" rel="stylesheet"> -->
 </head>
-<body>
-    <h1 id="title">FATSTAK</h1>
-    <!-- <p id="subtitle">Track Your Bitcoin</p> -->
-    <table id="addressTable">
-        <thead>
-            <tr>
-                <th>Watched Wallets ➕</th>
-                <th>Balance (BTC)</th>
-                <th>Value (USD)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    <p><span id="lastUpdated"></span>. <span id="btcPrice"></span></p>
-    <input type="text" id="btcAddress" placeholder="Enter Bitcoin Address">
-    <button onclick="addAddress()">Watch Wallet</button>
+
+<body class="text-center h-full flex flex-col">
+    <!-- TOP BANNER -->
+    <div class="w-full bg-base-300">
+        <div class="navbar max-w-screen-lg mx-auto">
+            <div class="navbar-start text-2xl font-medium">
+                FATSTAK
+            </div>
+            <div class="navbar-center">
+                <!-- Track Your Bitcoin -->
+            </div>
+            <div class="navbar-end">
+                <!-- <button class="btn btn-ghost btn-circle">
+                    <div class="indicator">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span class="badge badge-xs badge-primary indicator-item"></span>
+                    </div>
+                </button> -->
+                <div class="join">
+                    <input class="join-item btn" type="radio" name="options" aria-label="BTC" />
+                    <input class="join-item btn" type="radio" name="options" checked="checked" aria-label="USD" />
+                  </div>
+            </div>
+        </div>
+    </div>
+    <!-- MAIN CONTENT -->
+    <div id="main" class="max-w-screen-lg w-full mx-auto grow text-left">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Wallet</th>
+                    <th>Balance</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="font-bold">Corbin's Coin</div>
+                        <div class="opacity-50 truncate">18rDk3MJ4WbjxxsHFrZDKbr7iKGAFTtwQs</div>
+                    </td>
+                    <td>.000000000001</td>
+                    <td>$100,000</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="font-bold">Bob's Coin</div>
+                        <div class="opacity-50 truncate">18rDk3MJ4WbjxxsHFrZDKbr7iKGAFTtwQs</div>
+                    </td>
+                    <td>.000000000001</td>
+                    <td>$100,000</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="p-2">
+            <p><span id="lastUpdated"></span></p>
+            <p><span id="btcPrice"></span></p>
+        </div>
+    </div>
+    <!-- <input id="btcAddress" type="text" class="input w-full max-w-xs" placeholder="Enter Bitcoin Address">
+    <button onclick="addAddress()">Watch Wallet</button> -->
+    <!-- FOOTER -->
+    <footer id="footer" class="pb-4 leading-none">
+        <a href="https://vokrox.com" class="link">VOKROX</a>
+    </footer>
+
     <script src="app.js"></script>
 </body>
+
 </html>

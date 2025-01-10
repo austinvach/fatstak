@@ -38,15 +38,21 @@ function displayInformation() {
   savedAddresses.forEach((entry, index) => {
     const row = document.createElement("tr");
     const addressCell = document.createElement("td");
-    addressCell.textContent = entry.nickname
-      ? `${entry.nickname} (${entry.address.slice(-6)})`
-      : entry.address;
-    const editIcon = document.createElement("span");
-    editIcon.textContent = " ✏️";
-    editIcon.className = "edit-icon";
-    editIcon.style.cursor = "pointer";
-    editIcon.onclick = () => editNickname(index);
-    addressCell.appendChild(editIcon);
+    // addressCell.textContent = entry.nickname
+    //   ? `${entry.nickname} (${entry.address.slice(-6)})`
+    //   : entry.address;
+    if(entry.nickname) {
+      const newCell = createTableCell(entry.nickname, entry.address);
+      addressCell.appendChild(newCell);
+    } else {
+      addressCell.textContent = entry.address;
+    }
+    // const editIcon = document.createElement("span");
+    // editIcon.textContent = " ✏️";
+    // editIcon.className = "edit-icon";
+    // editIcon.style.cursor = "pointer";
+    // editIcon.onclick = () => editNickname(index);
+    // addressCell.appendChild(editIcon);
     const balanceCell = document.createElement("td");
     balanceCell.textContent = entry.balance ? (entry.balance/100000000) : "Loading...";
     const valueCell = document.createElement("td");
@@ -58,7 +64,7 @@ function displayInformation() {
   });
   document.getElementById(
     "lastUpdated"
-  ).textContent = `Last Updated: ${new Date(
+  ).textContent = `Updated: ${new Date(
     parseInt(lastUpdated)
   ).toLocaleString()}`;
   }
@@ -111,4 +117,38 @@ async function fetchUpdates() {
   // SET A TIMEOUT FOR THE NEXT REFRESH
   setTimeout(fetchUpdates, refreshTime);
   displayInformation();
+}
+
+function createTableCell(nickname, address) {
+  // Create the <div> with class "flex items-center gap-3"
+  // const flexDiv = document.createElement('div');
+  // flexDiv.className = 'flex items-center gap-3';
+
+  // Create the inner <div>
+  const innerDiv = document.createElement('div');
+  innerDiv.style.width = '100%';
+
+  // Create the <div> with class "font-bold" and set its text content
+  const nicknameDiv = document.createElement('div');
+  nicknameDiv.className = 'font-bold';
+  nicknameDiv.textContent = nickname;
+
+  // Create the <div> with class "text-sm opacity-50" and set its text content
+  const addressDiv = document.createElement('div');
+  addressDiv.className = 'text-sm opacity-50';
+  addressDiv.textContent = address;
+
+  // Apply CSS styles to truncate text
+addressDiv.style.overflow = 'hidden';
+addressDiv.style.textOverflow = 'ellipsis';
+addressDiv.style.whiteSpace = 'nowrap';
+
+  // Append the nameDiv and locationDiv to the innerDiv
+  innerDiv.appendChild(nicknameDiv);
+  innerDiv.appendChild(addressDiv);
+
+  // Append the innerDiv to the flexDiv
+  // flexDiv.appendChild(innerDiv);
+
+  return innerDiv;
 }
