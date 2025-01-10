@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
 </head>
 
-<body class="text-center h-full flex flex-col">
+<body class="text-center h-full flex flex-col bg-base-200">
     <!-- TOP BANNER -->
     <div class="w-full bg-base-300">
         <div class="navbar max-w-screen-lg mx-auto">
@@ -64,10 +64,12 @@
             <p><span id="btcPrice"></span></p>
         </div>
     </div>
-    <!-- <input id="btcAddress" type="text" class="input w-full max-w-xs" placeholder="Enter Bitcoin Address">
-    <button onclick="addAddress()">Watch Wallet</button> -->
+    <div>
+        <input id="btcAddress" type="text" class="input w-full max-w-xs" placeholder="Enter Bitcoin Address">
+        <button onclick="addAddress()" class="btn btn-neutral">Watch Wallet</button>
+    </div>
     <!-- FOOTER -->
-    <footer id="footer" class="pb-4 leading-none">
+    <footer id="footer" class="p-4 leading-none">
         <a href="https://vokrox.com" class="link">VOKROX</a>
     </footer>
     <script src="app.js"></script>
