@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   savedAddresses = JSON.parse(localStorage.getItem("savedAddresses")) || [];
   lastUpdated = localStorage.getItem("lastUpdated") || null;
   btcPrice = localStorage.getItem("btcPrice") || null;
-  refreshTime = 1 * 60 * 1000; // Current refresh time is every 5 minutes
+  refreshTime = 5 * 60 * 1000; // Current refresh time is every 5 minutes
   
 //CHECK IF A USER HAS ANY SAVED ADDRESSES BEFORE TRYING TO FETCH OR DISPLAY UPDATES
   if (!lastUpdated || now - lastUpdated > refreshTime) {
