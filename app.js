@@ -33,8 +33,8 @@ function displayInformation() {
   btcPriceSpan.textContent = `USD/BTC: $${btcPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   // CHECK IF THE USER HAS ANY SAVED ADDRESSES AND DISPLAY THEM IF THEY DO
   if (savedAddresses) {
-  const addressTableBody = document.querySelector("#addressTable tbody");
-  addressTableBody.innerHTML = "";
+  const dataTable = document.querySelector("#dataTable tbody");
+  dataTable.innerHTML = "";
   savedAddresses.forEach((entry, index) => {
     const row = document.createElement("tr");
     const addressCell = document.createElement("td");
@@ -60,7 +60,7 @@ function displayInformation() {
     row.appendChild(addressCell);
     row.appendChild(balanceCell);
     row.appendChild(valueCell);
-    addressTableBody.appendChild(row);
+    dataTable.appendChild(row);
   });
   document.getElementById(
     "lastUpdated"
